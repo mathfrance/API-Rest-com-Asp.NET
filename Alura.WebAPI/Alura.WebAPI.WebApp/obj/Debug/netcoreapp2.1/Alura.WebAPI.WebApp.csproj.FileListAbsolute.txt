@@ -39,4 +39,3 @@ C:\Users\mathf\Documents\Clone\API Rest com Asp.NET\Alura.WebAPI\Alura.WebAPI.We
 C:\Users\mathf\Documents\Clone\API Rest com Asp.NET\Alura.WebAPI\Alura.WebAPI.WebApp\obj\Debug\netcoreapp2.1\Alura.WebAPI.WebApp.dll
 C:\Users\mathf\Documents\Clone\API Rest com Asp.NET\Alura.WebAPI\Alura.WebAPI.WebApp\obj\Debug\netcoreapp2.1\Alura.WebAPI.WebApp.pdb
 C:\Users\mathf\Documents\Clone\API Rest com Asp.NET\Alura.WebAPI\Alura.WebAPI.WebApp\obj\Debug\netcoreapp2.1\Alura.WebAPI.WebApp.genruntimeconfig.cache
-C:\Users\mathf\Documents\Clone\API Rest com Asp.NET\Alura.WebAPI\Alura.WebAPI.WebApp\bin\Debug\netcoreapp2.1\Api\LivrosController.cs
