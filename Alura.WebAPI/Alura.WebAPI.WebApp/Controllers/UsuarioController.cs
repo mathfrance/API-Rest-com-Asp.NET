@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Alura.ListaLeitura.HttpClients;
 using Alura.ListaLeitura.Seguranca;
 using Alura.ListaLeitura.WebApp.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,20 +15,20 @@ namespace Alura.ListaLeitura.WebApp.Controllers
 {
     public class UsuarioController : Controller
     {
-        private readonly UserManager<Usuario> _userManager;
-        private readonly SignInManager<Usuario> _signInManager;
+        //private readonly UserManager<Usuario> _userManager;
+        //private readonly SignInManager<Usuario> _signInManager;
+        private readonly AuthApiClient _authApiClient;
 
-        public UsuarioController(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
+        public UsuarioController(AuthApiClient authApiClient)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _authApiClient = authApiClient;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Login()
         {
-            await _signInManager.SignOutAsync();
+            await HttpContext.SignOutAsync();
             return View();
         }
 
@@ -34,9 +39,19 @@ namespace Alura.ListaLeitura.WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Login, model.Password, false, false);
+                var result = await _authApiClient.PostLoginAsync(model);
+                //var result = await _signInManager.PasswordSignInAsync(model.Login, model.Password, false, false);
                 if (result.Succeeded)
                 {
+                    List<Claim> claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, model.Login),
+                        new Claim("Token" , result.Token)
+                    };
+                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(String.Empty, "Erro na autenticação");
@@ -57,24 +72,24 @@ namespace Alura.ListaLeitura.WebApp.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var user = new Usuario { UserName = model.Login };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
+            //if (ModelState.IsValid)
+            //{
+            //    var user = new Usuario { UserName = model.Login };
+            //    var result = await _userManager.CreateAsync(user, model.Password);
+            //    if (result.Succeeded)
+            //    {
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
-                }
-            }
+            //        await _signInManager.SignInAsync(user, isPersistent: false);
+            //        return RedirectToAction("Index", "Home");
+            //    }
+            //}
             return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await HttpContext.SignOutAsync();
             return RedirectToAction("Login");
         }
 
