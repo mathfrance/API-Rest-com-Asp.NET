@@ -12,6 +12,8 @@ namespace Alura.ListaLeitura.Api.Controllers
 {
     [Authorize]
     [ApiController]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [Route("api/[controller]")]
     public class ListasLeitura : ControllerBase
     {

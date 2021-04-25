@@ -40,7 +40,6 @@ namespace Alura.ListaLeitura.WebApp.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _authApiClient.PostLoginAsync(model);
-                //var result = await _signInManager.PasswordSignInAsync(model.Login, model.Password, false, false);
                 if (result.Succeeded)
                 {
                     List<Claim> claims = new List<Claim>
@@ -52,6 +51,7 @@ namespace Alura.ListaLeitura.WebApp.Controllers
                     ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(String.Empty, "Erro na autenticação");

@@ -3,31 +3,25 @@ using Alura.ListaLeitura.Persistencia;
 using Alura.WebAPI.Api.Modelos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Alura.ListaLeitura.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [ApiVersion("1.0")]
-    [ApiExplorerSettings(GroupName = "v1")]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    public class LivrosController : ControllerBase
+    [ApiVersion("2.0")]
+    [ApiExplorerSettings(GroupName ="v2")]
+    [Route("api/v{version:apiVersion}/livros")]
+    public class Livros2Controller : ControllerBase
     {
         private readonly IRepository<Livro> _repo;
 
-        public LivrosController(IRepository<Livro> repository)
+        public Livros2Controller(IRepository<Livro> repository)
         {
             _repo = repository;
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(statusCode:200, Type = typeof(LivroApi))]
-        [ProducesResponseType(statusCode:500, Type = typeof(ErrorResponse))]
-        [ProducesResponseType(statusCode:404)]
         public IActionResult Recuperar(int id)
         {
             var livro = _repo.Find(id);
@@ -37,7 +31,7 @@ namespace Alura.ListaLeitura.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(livro.ToApi());
+            return Ok(livro);
         }
 
         [HttpGet("{id}/capa")]
@@ -55,16 +49,22 @@ namespace Alura.ListaLeitura.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult ListaDeLivros(int id)
+        public IActionResult ListaDeLivros(
+            [FromQuery] LivroFiltro filtro,
+            [FromQuery] LivroOrdem ordem,
+            [FromQuery] LivroPaginacao paginacao)
         {
-            var livros = _repo.All.Select(livro => livro.ToApi()).ToList();
+            var livrosPaginados = _repo.All
+                .AplicaFiltro(filtro)
+                .AplicaOrdem(ordem)
+                .Select(livro => livro.ToApi())
+                .ToPaginacao(paginacao);
 
-            if (livros == null)
+            if (livrosPaginados == null)
             {
                 return NotFound();
             }
-
-            return Ok(livros);
+            return Ok(livrosPaginados);
         }
 
         [HttpPost]
